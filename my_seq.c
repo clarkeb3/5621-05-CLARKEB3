@@ -1,9 +1,10 @@
 /* Including libraries needed to run the code. */
 
-#include <stdio.h>	
-#include <math.h>	
 #include <stdlib.h> 
 #include <getopt.h>
+#include <stdio.h>	
+#include <math.h>	
+
 
 /* Setting up the main function of the program */
 
