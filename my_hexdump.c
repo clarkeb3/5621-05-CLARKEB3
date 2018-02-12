@@ -5,8 +5,8 @@
 #include <ctype.h> 
 
 /* Including relevant definitions. */
-#define hex_off    1
-#define ascii_off 51
+#define HEX_OFFSET    1
+#define ASCII_OFFSET 51
 #define NUM_CHARS    16
  
  
@@ -24,8 +24,6 @@ char * ascii (char *position, int c);
  /* Setting up the main function of the program */
 int main(int argc, char * argv[])
 {
-    char *programme_name="my_hexdump";
- 
     if (argc != 2)
     {
         printf("\n\t%s syntax:\n\n", argv[0]);
@@ -36,36 +34,42 @@ int main(int argc, char * argv[])
     my_hexdump( argv[0], argv[1]);
 }
  
+ 
 void my_hexdump(char* programme_name, char * filename)
 {
     int c=' ';             /* Character to be read from the file */
-    char * hex_off;     	/* Specifying position of the next character in hex.*/
-    char * ascii_off;   /* Specifying postion of the next character in ASCII.*/
+    char * hex_offset;     /* Specifying position of the next character in hex.*/
+    char * ascii_offset;   /* Specifying postion of the next character in ASCII.*/
     FILE *Pointer;             /* Pointer to the file.   */
     char line[81];  
  
     /* Opening file to be hexdumped*/
     Pointer = fopen(filename,"r");
-
-    /* Printing error if file cannot be opened. */ 
+        /* Opening file to be hexdumped*/
     if ( ferror(Pointer) )
     {
         printf("\n\t%s: Unable to open %s\n\n", programme_name, filename);
         exit(0);
     }
-
+ 
+    printf("\n\tHex dump of %s\n\n", filename);
+ 
     while (c != EOF )
     {
         clear_line(line, sizeof line);
-        hex_off   = line+hex_off;
-        ascii_off = line+ascii_off;
+        hex_offset   = line+HEX_OFFSET;
+        ascii_offset = line+ASCII_OFFSET;
  
-        while ( ascii_off < line+ascii_off+NUM_CHARS &&(c = fgetc(Pointer)) != EOF  )
+        while ( ascii_offset < line+ASCII_OFFSET+NUM_CHARS
+                &&(c = fgetc(Pointer)) != EOF  )
         {
-
-        hex_off = hex(hex_off, c);
-
-        ascii_off = ascii(ascii_off, c);
+            /* Build the hex part of
+             * the line.      */
+            hex_offset = hex(hex_offset, c);
+ 
+            /* Build the Ascii part of
+             * the line.      */
+            ascii_offset = ascii(ascii_offset, c);
  
         }
         printf("%s\n", line);
@@ -83,19 +87,25 @@ void clear_line(char *line, int size)
  
 char * ascii(char *position, int c)
 {
-    /* If the character can't be printed, replace it with a '.'  */
+    /* If the character is NOT printable
+     * replace it with a '.'  */
     if (!isprint(c)) c='.';
  
-    sprintf(position, "%c", c);    
+    sprintf(position, "%c", c);    /* Put the character to the line
+                                    * so it can be displayed later */
  
-    /* Return the position of the next ASCII character.   */
+    /* Return the position of the next
+     * ASCII character.   */
     return(++position);
 }
  
 char * hex(char *position, int c)
 {
     int offset=3;
+ 
     sprintf(position, "%02X ", (unsigned char) c);
+ 
     *(position+offset)=' ';   /* Remove the '/0' created by 'sprint'  */
+ 
     return (position+offset);
 }
